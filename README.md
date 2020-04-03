@@ -13,3 +13,8 @@ You should run this script on master.
 # pod-restarter
 You can schedule restart some of pods in all namespaces with this script.For example if you have some pods that have to be restarted time to tim
 You should run this script on master.
+
+# volume-checker
+You can check your hostpath volumes one by one and if the volume size bigger than wanted value it sends you e-mail.
+ssmtp should be installed on system.
+You should run this script on nodes.
