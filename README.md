@@ -18,3 +18,7 @@ You should run this script on master.
 You can check your hostpath volumes one by one and if the volume size bigger than wanted value it sends you e-mail.
 ssmtp should be installed on system.
 You should run this script on nodes.
+
+# image-update
+You can update images in bulk
+You should run this script on nodes
