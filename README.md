@@ -20,5 +20,5 @@ ssmtp should be installed on system.
 You should run this script on nodes.
 
 # image-update
-You can update images in bulk
+You can update images in bulk.
 You should run this script on nodes
