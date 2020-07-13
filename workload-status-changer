@@ -3,6 +3,7 @@
 status=$2
 namespace=$1
 deployments=($(kubectl get deployment -n $namespace | awk '{print $1}'))
+cronjobs=($(kubectl get cj -n $namespace | awk '{print $1}'))
 if [[ $status = stop ]];then
 
 for deployment in "${deployments[@]}"
@@ -10,11 +11,21 @@ do
 kubectl scale --replicas=0 deployment/$deployment
 done
 
+for cronjob in "${cronjobs[@]}"
+do
+kubectl patch cronjobs $cronjob -p '{"spec" : {"suspend" : true }}'
+done
+
 elif [[ $status = start ]];then
 
 for deployment in "${deployments[@]}"
 do
 kubectl scale --replicas=1 deployment/$deployment
+done
+
+for cronjob in "${cronjobs[@]}"
+do
+kubectl patch cronjobs $cronjob -p '{"spec" : {"suspend" : false }}'
 done
 
 else
