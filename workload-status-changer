@@ -1,31 +1,24 @@
 #!/bin/bash
-//this script starts and stops all workloads
+#this script starts and stops all workloads
 status=$2
 namespace=$1
-deployments=($(kubectl get deployment -n $namespace | awk '{print $1}'))
-cronjobs=($(kubectl get cj -n $namespace | awk '{print $1}'))
+cronjobs=($(kubectl get cj -n $namespace | grep -v NAME | awk '{print $1}'))
 if [[ $status = stop ]];then
 
-for deployment in "${deployments[@]}"
-do
-kubectl scale --replicas=0 deployment/$deployment
-done
+ kubectl scale deploy -n boydak-dev --replicas=0 --all
 
 for cronjob in "${cronjobs[@]}"
 do
-kubectl patch cronjobs $cronjob -p '{"spec" : {"suspend" : true }}'
+kubectl patch cronjobs -n $namespace $cronjob -p '{"spec" : {"suspend" : true }}'
 done
 
 elif [[ $status = start ]];then
 
-for deployment in "${deployments[@]}"
-do
-kubectl scale --replicas=1 deployment/$deployment
-done
+ kubectl scale deploy -n boydak-dev --replicas=1 --all
 
 for cronjob in "${cronjobs[@]}"
 do
-kubectl patch cronjobs $cronjob -p '{"spec" : {"suspend" : false }}'
+kubectl patch cronjobs -n $namespace $cronjob -p '{"spec" : {"suspend" : false }}'
 done
 
 else
