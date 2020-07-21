@@ -3,14 +3,6 @@ none_images_id=($(docker images | grep $1 | grep none | awk '{print $3}'))
 
 for none_image_id in "${none_images_id[@]}"
 do
-	docker rmi -f none_image_id
-done
-
-#!/bin/bash
-none_images_id=($(docker images | grep $1 | grep none | awk '{print $3}'))
-
-for none_image_id in "${none_images_id[@]}"
-do
 #       docker rmi -f $none_image_id
 echo "This none image is deleted: " $none_image_id
 done
