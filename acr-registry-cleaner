@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e
+REGISTRY=$1 #registry name
+REPOSITORY=$2 #repository(image name) 
+TAGS=$( az acr repository show-tags --name $REGISTRY --repository $REPOSITORY )
+TAG_COUNT=$( echo $TAGS | jq -r ' . | length ' )
+TRESHOLD=5300
+
+for (( c=0; c<$TAG_COUNT ; c++ ))
+do
+  TAG=$( echo $TAGS | jq -r .[$c] )
+  if [[ $TAG -lt $TRESHOLD ]] && [[ $TAG != "dev" ]] && [[ $TAG != "staging" ]] && [[ $TAG != "latest"  ]] ; then
+    echo "This image will be deleted :" $REPOSITORY:$TAG
+    az acr repository delete --image $REPOSITORY:$TAG --name $REGISTRY -y
+  else
+    echo "This tag is over treshold: " $TAG
+  fi
+done
+##You should be sure login az and you have valid permisssions
