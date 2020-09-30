@@ -4,7 +4,7 @@ REGISTRY=$1 #registry name
 REPOSITORY=$2 #repository(image name) 
 TAGS=$( az acr repository show-tags --name $REGISTRY --repository $REPOSITORY )
 TAG_COUNT=$( echo $TAGS | jq -r ' . | length ' )
-TRESHOLD=5300
+TRESHOLD=$3
 
 for (( c=0; c<$TAG_COUNT ; c++ ))
 do
