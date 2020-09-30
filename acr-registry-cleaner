@@ -16,4 +16,5 @@ do
     echo "This tag is over treshold: " $TAG
   fi
 done
+az acr repository show-manifests --name $REGISTRY --repository $REPOSITORY --query "[?tags[0]==null].digest"
 ##You should be sure login az and you have valid permisssions
