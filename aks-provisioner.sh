@@ -1,9 +1,10 @@
 #!/bin/bash
+set -x 
 
-PROJECT_CODE="smartpulse"
+PROJECT_CODE=<Company-Name>
 # Set the environment that this deployment represent (dev, qa, prod,...)
 ENVIRONMENT="dev"
-SUBSCRIPTION_CODE="ent"
+SUBSCRIPTION_CODE=<Company-Name>
 
 # Primary location
 LOCATION="westeurope"
@@ -17,8 +18,8 @@ PREFIX="${ENVIRONMENT}${PROJECT_CODE}"
 
 
 # Azure subscription vars (uncomment if you will supply the values)
-SUBSCRIPTION_ID="REPLACE"
-TENANT_ID="REPLACE"
+SUBSCRIPTION_ID=<Subscription-Id>
+TENANT_ID=<Tenant-Id>
 
 ### Resource groups
 export RG_AKS="${PREFIX}-aks-${SUBSCRIPTION_CODE}-${LOCATION_CODE}" 
@@ -305,22 +306,52 @@ AKS_SUBNET_ID=$(az network vnet subnet show -g $RG_SHARED --vnet-name $PROJ_VNET
     --kubernetes-version '1.19.7' \
     --generate-ssh-keys \
     --load-balancer-outbound-ips $AKS_PIP_ID \
-    --vnet-subnet-id '/subscriptions/<subscriptopn_id>/resourceGroups/devusta-shared-ent-weu/providers/Microsoft.Network/virtualNetworks/spok
-e-devusta-ent-weu/subnets/devusta-aks' \
+    --vnet-subnet-id <Subnet-Id> \
     --network-plugin azure \
     --network-policy calico \
     --service-cidr $AKS_SERVICE_CIDR \
     --dns-service-ip $AKS_DNS_SERVICE_IP \
     --docker-bridge-address $AKS_DOCKER_BRIDGE_ADDRESS \
     --nodepool-name $AKS_DEFAULT_NODEPOOL \
-    --node-count 3 \
+    --node-count 1 \
     --max-pods 30 \
     --node-vm-size "Standard_D4s_v3" \
     --vm-set-type VirtualMachineScaleSets \
-    --enable-managed-identity  \
-    --enable-cluster-autoscaler \
-    --min-count 1 \
-    --max-count 5 \
+    --enable-managed-identity \
     --zones 1  2 3 \
     --nodepool-labels app=system \
+    --service-principal <Service-Principal> \
+    --client-secret <Client-Secret> \
     --tags $TAG_ENV $TAG_PROJ_CODE $TAG_DEPT_IT $TAG_STATUS_EXP
+
+export SECOND_NOODEPOOL="dbpool"
+
+az aks nodepool add \
+    --resource-group $RG_AKS \
+    --cluster-name $AKS_CLUSTER_NAME \
+    --os-type Linux \
+    --name $SECOND_NOODEPOOL \
+    --node-count 1 \
+    --max-pods 30 \
+    --kubernetes-version '1.19.7' \
+    --node-vm-size "Standard_E4as_v4" \
+    --mode User \
+    --labels app=db \
+    --no-wait
+
+export THIRD_NOODEPOOL="apppool"
+
+az aks nodepool add \
+    --resource-group $RG_AKS \
+    --cluster-name $AKS_CLUSTER_NAME \
+    --os-type Linux \
+    --name $THIRD_NOODEPOOL \
+    --node-count 1 \
+    --max-pods 30 \
+    --kubernetes-version '1.19.7' \
+    --node-vm-size "Standard_E4as_v4" \
+    --mode User \
+    --labels app=app \
+    --no-wait
+
+set +x
